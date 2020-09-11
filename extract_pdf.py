@@ -4,6 +4,7 @@ import pandas as pd
 import sys
 import os
 from datetime import datetime
+import time
 
 def write_into_file(content):
     # my_file.write("{\n")
@@ -59,7 +60,7 @@ for a in df:
         # if len(first_row_tmp) <2 and len(t_word_tmp) == 1 :
         #     first_row_tmp.append(t_word_tmp[0])
         
-        # print(str(i) + "  " + str(c) + "  " + "::".join(t_word_tmp))
+        print(str(i) + "  " + str(c) + "  " + "::".join(t_word_tmp))
     # first_row.append(first_row_tmp[1])
     # print("first_row :: " + first_row_tmp[1])
     t_word.append(t_word_page)
@@ -69,20 +70,21 @@ for a in df:
 pdf = pdfplumber.open(pdf_file) 
 
 # Open output text file
-filename += "_" + f"{dt_string}.txt"
-# filename = "output.txt"
+# filename += "_" + f"{dt_string}.txt"
+filename = "output.txt"
 my_file = open(f"{output_path}\{filename}", "w", encoding="utf8")
 write_into_file("{\n")
 
-
 # Main Working Flow
 page_num = 0 # current page number (1 ~ )
+find_page_num = 0
 write_started = False # Whether writing started
 
 
 # Iterate through pages
 for p0 in pdf.pages:
     page_num += 1 # Increase current page
+    find_page_num += 1
     cell = [] # An array of index of cell data
     word = [] # An array of cell data
     # Parse the tables of PDF
@@ -102,17 +104,15 @@ for p0 in pdf.pages:
     # cell.append(cell_temp)
     vess_start = False
     for i in range(len(df.index)):
-        # my_file.write("line " + str(i) + " : ")
+        my_file.write("line " + str(i) + " : ")
         count = 1
         cell_temp = []
-        
-
         
         # Iterate through columns
         for j in  range(len(df.columns)):
             
             ss = str(df.iloc[i, j])          
-            # my_file.write(str(j) + ":" + ss + "  ")
+            my_file.write(str(j) + ":" + ss + "  ")
             if ss != "None" :
                 word.append(ss)
                 count += 1
@@ -125,7 +125,7 @@ for p0 in pdf.pages:
 
             cell_temp.append( len(word) - 1)
         cell.append(cell_temp)
-        # my_file.write("\n")
+        my_file.write("\n")
 
     # Main Working Flow
     # Iterate through rows
@@ -145,17 +145,22 @@ for p0 in pdf.pages:
             if ww_2 == "": 
                 cell[i][j] = -1
                 continue
-
+            print("ww_2::1 == " + ww_2)
             # Whether data is group
             if i < len(df.index) - 2 and k > j: 
-                if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and cell[i+1][k] != cell[i+1][k+1])) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions"]) :
+                print("ww_2::2 == " + ww_2 + " i = " + str(i) + " j = " + str(j) + " k = " + str(k))
+                if ww_2 == "Time Log":
+                    if j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j]): print("1") 
+                    if k == len(df.columns) - 1 or (k < len(df.columns) - 1 and cell[i+1][k] != cell[i+1][k+1]) : print("2")
+                    if cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions"]: print("3")
+                if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[i+1][k] != cell[i+1][k+1])) or ww_2 in ["Time Log"]) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions"]) :
+                    print("ww_2::3 == " + ww_2)
                     # Get the number of rows in a group
                     for ii in range(i+2, len(df.index) - 1): 
-                        if ww_2 == "Variable Load": print("Variable = " + str(word[cell[ii][j]]))
-                        if ww_2 == "Accidents": print("word = " + str(word[cell[ii][j]]))
                         if ww_2 == "Mud" and word[cell[ii][j]] == "Mud Products": break
                         if ww_2 == "Supply Boats" and word[cell[ii][j]] == "Weather Conditions": break
-                        if ww_2 == "Supply Boats" and word[cell[ii][j]] == "Weather Conditions": break
+                        if ww_2 == "Time Log" and word[cell[ii][j]] == "Operation Summary": break
+                        if ww_2 == "Survey Data" and word[cell[ii][j]] == "Summary/Remarks": break
 
 
                         if ww_2 == "Weather Conditions" and word[cell[ii][j]] == "Anchors": break
@@ -165,23 +170,9 @@ for p0 in pdf.pages:
                         if ww_2 == "Casing Pressure Tests" and word[cell[ii][j]] == "BOP Pressure Tests": break
                         if ww_2 == "BOP Pressure Tests" and word[cell[ii][j]] == "Equipment Pressure Test Data": break
                         
-                        # if ww_2 == "Personnel": print("2")
-                        # if ww_2 == "Personnel": print("ii = " + str(ii) + " j = " + str(j) + " k = " + str(k))
-                        # if ww_2 == "Personnel": print( str(cell[ii][j-1]) + "  " + str(cell[ii][j]) + "  #" + word[cell[ii][j]] + "#")
-                        # if j == 0 or (j > 0 and cell[ii][j-1] != cell[ii][j]):print ("OK 1:: ")
-                        # if k == len(df.columns) - 1 or (k < len(df.columns) - 1 and cell[ii][k] != cell[ii][k+1]): print("OK 2") 
-                        # if cell[ii][j] != cell[ii][k] or ww_2 in ["Mud", "Daily Operations", "Daily Cost/Time Summary", "Mud/Fluid Checks", "Weather Conditions", "BHA Information", "Drilling Parameters", "Leak Off and Formation Integrity Tests", "Casing Pressure Tests", "BOP Pressure Tests"] : print("ok 3")
-                        # if ww_2 == "Personnel":
-                        #     print("ii, k = #" + word[cell[ii][k]] + "# " + str(cell[ii][k]) + "  ii,k+1 = #" + word[cell[ii][k+1]] + "# " + str(cell[ii][k+1]) + "  ii,j = " + str(cell[ii][j] ))
-                        #     if j == 0 or (j > 0 and cell[ii][j-1] != cell[ii][j]) or  (j > 0 and cell[ii][j-1] == cell[ii][j] and cell[ii][j] == cell[ii][k]): print ("ok 1") 
-                        #     if k == len(df.columns) - 1: print("ok 2-1")
-                        #     if k < len(df.columns) - 1 and cell[ii][k] != cell[ii][k+1] : print("ok 2-2") 
-                        #     if k < len(df.columns) - 1 and (cell[ii][k] == cell[ii][k+1] and cell[ii][k] == cell[ii][j]): print ("ok 2-3")
-                        #     if cell[ii][j] != cell[ii][k] or ww_2 in ["Mud", "Time Log"] : print("ok 3")
-                        if not ((j == 0 or (j > 0 and cell[ii][j-1] != cell[ii][j]) or (j > 0 and cell[ii][j-1] == cell[ii][j] and cell[ii][j] == cell[ii][k])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[ii][k] != cell[ii][k+1] or (cell[ii][k] == cell[ii][k+1] and ww_2 in ["Personnel", "Supply Boats", "Standby Boat", "Weather Conditions"])))) and (cell[ii][j] != cell[ii][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Planned Operation", "Accidents", "Cum to Date", "Mud Total", "Mud Cum to Date", "Day Total", "Safety Drills", "Well Status at 6:00 am", "Personnel", "Supply Boats", "Standby Boat", "Weather Conditions"])) : break
-                        if ww_2 == "Personnel": print("3")
+                       
+                        if not ((j == 0 or (j > 0 and cell[ii][j-1] != cell[ii][j]) or (j > 0 and cell[ii][j-1] == cell[ii][j] and cell[ii][j] == cell[ii][k])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[ii][k] != cell[ii][k+1] or (cell[ii][k] == cell[ii][k+1] and ww_2 in ["Time Log", "Survey Data"])))) and (cell[ii][j] != cell[ii][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Planned Operation", "Accidents", "Cum to Date", "Mud Total", "Mud Cum to Date", "Day Total", "Safety Drills", "Well Status at 6:00 am", "Personnel", "Supply Boats", "Standby Boat", "Weather Conditions"])) : break
                         if not(ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Planned Operation", "Accidents", "Mud Total", "Mud Cum to Date", "Day Total", "Cum to Date", "Safety Drills", "Well Status at 6:00 am", "Personnel", "Supply Boats", "Standby Boat", "Weather Conditions"]):
-                            # if ww_2 == "Mud": print("4")
                             for jj in range(j+1, k+1): 
                                 if cell[ii][jj] - cell[ii-1][jj] != cell[ii][j] - cell[ii-1][j]:break
                             else:
@@ -190,7 +181,7 @@ for p0 in pdf.pages:
                     else:
                         if ii < i + 2: ii = i + 2                        
                         if ii == len(df.index) - 2 : ii += 1
-                    if ww_2 == "Variable Load": print("i = " + str(i) + "  ii = " + str(ii))
+                    print("     i = " + str(i) + "  ii = " + str(ii) + " j = " + str(j) + " k = " + str(k))
               
                     
                     if ww_2 == "Time Log":
@@ -216,12 +207,19 @@ for p0 in pdf.pages:
 
                             # Split cell data to multiple rows
                             while len(tmp_list) > 0 and len(tmp_list[0].splitlines()) > 0:
-
+                                f_ok = False
                                 # Get data of the first line of the first column
-                                comp_str = tmp_list[0].splitlines()[-1].strip()  
+                                comp_str = tmp_list[0].splitlines()[-1].strip() 
                                 
                                 # Compare data of word array with comp_str and Set data
-                                for t_a in t_word[page_num - 1]:
+                                # total_ele = 0
+                                # total_cha = 0
+                                # for t_a in t_word[page_num - 1]:
+                                #     for t_b in t_a:
+                                #         total_ele += 1
+                                #         total_cha += len(t_b)
+                                # print("ele = " + str(total_ele) + " cha = " + str(total_cha))
+                                for t_a in t_word[find_page_num - 1]:
                                     for t_b in t_a:
                                         # Whether Is there comp_str in data of word array
                                         if t_b.find(comp_str.strip()) > -1 :
@@ -270,13 +268,16 @@ for p0 in pdf.pages:
                                                         else:    
                                                             ss += ', {' + ssss + '}'
                                                         tmp_list = tt[:]
+                                                    f_ok = True
 
                                                 if ss != "": ss += "\n"
                                                 if len(tmp_list) == 0: 
                                                     write_into_file("\n")
                                                     write_into_file(ss)
                                                     break
+                                if not f_ok: find_page_num += 1
                     elif ww_2 in ["Penetration", "Bit", "Parameters", "Drillstring Assembly", "Survey Data", "Mud Products", "Personnel", "Supply Boats", "Standby Boat", "Main Stock"]:
+                        print("WWWW = " + ww_2)
                         # col header
                         pre_cell = -2
                         header = []
@@ -290,7 +291,17 @@ for p0 in pdf.pages:
                         for iii in range(i + 2, ii): 
                             header_cc = 0
                             sss = ""
-                            if remove_special_characters(" ".join(word[cell[iii][j]].splitlines())) == "": continue
+                            if remove_special_characters(" ".join(word[cell[iii][j]].splitlines())) == "": 
+                                if iii == i + 2:
+                                    while header_cc < len(header):
+                                        if sss != "": sss += ", "
+                                        sss += '"' + header[header_cc] + '": ""'
+                                        header_cc += 1
+                                    sss = '{' + sss + '}'
+                                    if ss != "": ss += ", "
+                                    ss += sss
+                                continue
+
                             for jj in range(j, k + 1):
                                 if cell[iii][jj] != pre_cell:
                                     if header[header_cc] != "":
@@ -299,12 +310,14 @@ for p0 in pdf.pages:
                                     pre_cell = cell[iii][jj]
                                     header_cc += 1
                                 cell[iii][jj] = -1
+                            # print("header_cc = " + str(header_cc) + " len = " + str(len(header)))
+                            
+                                
                             sss = '{' + sss + '}'
                             if ss != "": ss += ", "
                             ss += sss                    
 
                     elif ww_2 in ["Mud", "Daily Operations", "Daily Cost/Time Summary", "Mud/Fluid Checks", "Weather Conditions", "BHA Information", "Drilling Parameters", "Leak Off and Formation Integrity Tests", "Casing Pressure Tests", "BOP Pressure Tests"]:
-                        print("www_1 = " + ww_2) 
                         pre_cell = -2
                         ss += "{\n"
                         for iii in range(i + 1, ii): 
@@ -361,7 +374,7 @@ for p0 in pdf.pages:
 
                         
                     else: # etc group
-                        print("ww_s = " + ww_2)
+                        print("ww_etc = " + ww_2)
                         pre_cell = -2
                         for iii in range(i + 1, ii): 
                             sss = ""
@@ -379,8 +392,6 @@ for p0 in pdf.pages:
                                 ss += sss
             # Output to output file
             if ww_2 != "": 
-                
-                
                 ww_2 = remove_special_characters(ww_2)
                 if write_started:
                     # my_file.write(", \n")
@@ -408,13 +419,10 @@ for p0 in pdf.pages:
                 
 
                 write_into_file(ww_2)
-                if ww_2.find("Variable Load") > -1: print("ww_ 2= " + ww_2 + "   ss = " + ss)
-                if ww_2.find("Accidents") > -1: print("ww_ 2= " + ww_2 + "   ss = " + ss)
                 write_started = True
 
             
             if ss != "": write_into_file(ss)
-            if ss.find("Accidents") > -1: print("ww_ 2= #" + ww_2 + "#   ss = " + ss)
 
             # if ww_2 != "" and ss != "" and ss[0] == "{": my_file.write('\n}')
             if ww_2 != "" and ss != "" and ss[0] == "{": write_into_file('\n]')
