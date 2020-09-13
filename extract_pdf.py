@@ -114,10 +114,15 @@ for p0 in pdf.pages:
             ss = str(df.iloc[i, j])          
             my_file.write(str(j) + ":" + ss + "  ")
             if ss != "None" :
-                word.append(ss)
-                count += 1
-                if j == 15 and ss == "Vessel Name":
-                    vess_start = True
+                if not (ss == "" and word[len(word) - 1] == "Time Log"):
+                    word.append(ss)
+                    count += 1
+                    if j == 15 and ss == "Vessel Name":
+                        vess_start = True
+                # word.append(ss)
+                # count += 1
+                # if j == 15 and ss == "Vessel Name":
+                #     vess_start = True
             else:
                 if j == 0 or (j == 20 and word[len(word) - 1] == "6.00") or (i == 10 and j == 33) or (j == 15 and vess_start):
                     word.append("")
@@ -191,8 +196,9 @@ for p0 in pdf.pages:
                         for jj in range(j, k + 1):
                             if cell[i+1][jj] != pre_cell:
                                 header.append(" ".join(word[cell[i+1][jj]].splitlines()))
+                                print("header = " + " ".join(word[cell[i+1][jj]].splitlines()))
                                 pre_cell = cell[i+1][jj]
-                            cell[i+1][jj] = -1
+                            # cell[i+1][jj] = -1
                         # Get the columns data in group
                         for iii in range(i + 2, ii): 
                             group_column_num = 0
@@ -200,12 +206,14 @@ for p0 in pdf.pages:
                             pre_cell = -2
                             # Get cell data
                             for jj in range(j, k + 1):
-                                if cell[iii][jj] != pre_cell:
+                                if cell[i+1][jj] != pre_cell:
                                     tmp_list.append( word[cell[iii][jj]])
-                                    pre_cell = cell[iii][jj]
+                                    pre_cell = cell[i+1][jj]
                                 cell[iii][jj] = -1
+                                # cell[i+1][jj] = -1
 
                             # Split cell data to multiple rows
+                            
                             while len(tmp_list) > 0 and len(tmp_list[0].splitlines()) > 0:
                                 f_ok = False
                                 # Get data of the first line of the first column
@@ -239,7 +247,9 @@ for p0 in pdf.pages:
                                                     if t_c.find(tmp_list[0].splitlines()[-1].strip()) == -1: continue
                                                     ssss = ""
                                                     tt = tmp_list[:]
-                                                    for c in range(len(tmp_list)): 
+                                                    for c in range(len(tmp_list)):
+                                                        print("#" + str(tmp_list[c]) + "#")
+                                                        print("c = " + str(c) + " len = " + str(len(tmp_list)) + " header = " + header[c]) 
                                                         sss = ""                                               
                                                         if len(tmp_list[c].splitlines()) == 0 :
                                                             sss = header[c] + ":   "
@@ -276,6 +286,15 @@ for p0 in pdf.pages:
                                                     write_into_file(ss)
                                                     break
                                 if not f_ok: find_page_num += 1
+                            print("len(tmp_list) = " + str(len(tmp_list)))
+                            if tmp_list[0] == "" : 
+                                print("#"  + str(tmp_list[4]) + "#")
+                                if len(tmp_list[4].splitlines()) > 0 and tmp_list[4].splitlines()[0] == "Cum Dur" and len(tmp_list[4].splitlines()) > 1:
+                                    ss = ss[:-1] + ', \n{"Cum Dur": "' + str(tmp_list[4].splitlines()[1]) + '"}'
+
+                        for jj in range(j, k + 1):
+                            cell[i+1][jj] = -1
+
                     elif ww_2 in ["Penetration", "Bit", "Parameters", "Drillstring Assembly", "Survey Data", "Mud Products", "Personnel", "Supply Boats", "Standby Boat", "Main Stock"]:
                         print("WWWW = " + ww_2)
                         # col header
