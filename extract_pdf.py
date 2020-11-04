@@ -124,7 +124,7 @@ for p0 in pdf.pages:
                 # if j == 15 and ss == "Vessel Name":
                 #     vess_start = True
             else:
-                if j == 0 or (j == 20 and word[len(word) - 1] == "6.00") or (i == 10 and j == 33) or (j == 15 and vess_start) or (j == 33 and word[len(word) - 1] == "Summary/Remarks"):
+                if j == 0 or (j == 20 and word[len(word) - 1] == "6.00") or (i == 10 and j == 33) or (j == 15 and vess_start) or (j == 33 and word[len(word) - 1] == "Summary/Remarks") or (j == 30 and word[len(word) - 1].find("Current Direction (°)") == 0):
                     word.append("")
                     count += 1
 
@@ -157,8 +157,7 @@ for p0 in pdf.pages:
                 if ww_2 == "Time Log":
                     if j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j]): print("1") 
                     if k == len(df.columns) - 1 or (k < len(df.columns) - 1 and cell[i+1][k] != cell[i+1][k+1]) : print("2")
-                    if cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions"]: print("3")
-                if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[i+1][k] != cell[i+1][k+1])) or ww_2 in ["Time Log"]) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions", "Summary/Remarks"]) :
+                if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[i+1][k] != cell[i+1][k+1])) or ww_2 in ["Time Log"]) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions", "Summary/Remarks", "Standby Boat", "Variable Load"]) :
                     print("ww_2::3 == " + ww_2)
                     # Get the number of rows in a group
                     for ii in range(i+2, len(df.index) - 1): 
@@ -175,7 +174,8 @@ for p0 in pdf.pages:
                         if ww_2 == "Leak Off and Formation Integrity Tests" and word[cell[ii][j]] == "Casing Pressure Tests": break
                         if ww_2 == "Casing Pressure Tests" and word[cell[ii][j]] == "BOP Pressure Tests": break
                         if ww_2 == "BOP Pressure Tests" and word[cell[ii][j]] == "Equipment Pressure Test Data": break
-                        
+                        if ww_2 == "Standby Boat" and word[cell[ii][j]] == "Variable Load": break
+                        if ww_2 == "Variable Load" and word[cell[ii][j]] == "Weather Conditions": break
                         if ww_2 == "Mud Products": print("1:1") 
                         if not ((j == 0 or (j > 0 and cell[ii][j-1] != cell[ii][j]) or (j > 0 and cell[ii][j-1] == cell[ii][j] and cell[ii][j] == cell[ii][k])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[ii][k] != cell[ii][k+1] or (cell[ii][k] == cell[ii][k+1] and ww_2 in ["Time Log", "Survey Data", "Summary/Remarks"])))) and (cell[ii][j] != cell[ii][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Planned Operation", "Accidents", "Cum to Date", "Mud Total", "Mud Cum to Date", "Day Total", "Safety Drills", "Well Status at 6:00 am", "Personnel", "Supply Boats", "Standby Boat", "Weather Conditions", "Summary/Remarks"])) and (ww_2 == "Mud Products" and cell[ii][j]!=cell[ii][k]) : break
                         if ww_2 == "Mud Products": print("1:2") 
@@ -307,7 +307,7 @@ for p0 in pdf.pages:
                         for jj in range(j, k + 1):
                             cell[i+1][jj] = -1
 
-                    elif ww_2 in ["Penetration", "Bit", "Parameters", "Drillstring Assembly", "Survey Data", "Mud Products", "Personnel", "Supply Boats", "Standby Boat", "Main Stock"]:
+                    elif ww_2 in ["Penetration", "Bit", "Parameters", "Drillstring Assembly", "Survey Data", "Mud Products", "Personnel", "Supply Boats", "Standby Boat", "Variable Load", "Main Stock"]:
                         print("WWWW = " + ww_2)
                         # col header
                         pre_cell = -2
@@ -389,7 +389,7 @@ for p0 in pdf.pages:
                                 ss += sss
                         ss += "}"
 
-                    elif ww_2 in ["Operation Summary", "Variable Load", "Planned Operation", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Safety Drills", "Well Status at 6:00 am", "Day Total"]:
+                    elif ww_2 in ["Operation Summary", "Planned Operation", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Safety Drills", "Well Status at 6:00 am", "Day Total"]:
                         ww_2 += ':' + " ".join(word[cell[i+1][j]].splitlines())   
                         for iiii in range(i, i + 2):
                             cc = cell[iiii][j]
@@ -509,6 +509,8 @@ remove_array = ['"Personnel": [\n{"Company": "", "Qty": ""}\n],',
 '"Main Stock": [\n{"Supply Item": "", "Unit": "", "Receive": "", "Used": "", "Stock": ""}\n],', 
 '"Supply Boats": [\n{"Vessel Name": "", "Date arrival": "", "Depart": ""}\n],', 
 '"Weather Conditions": [\n{\n"Wave Height (m)": "", "Wave Period (sec)": "", "Wave Direction (°)": "", "Wind Speed (knots)": "", "Wind Direction (°)": "", "P Bar (mbar)": "", "Current Speed (knots)": "", "Current Direction (°)": ""}\n],', 
+'"Standby Boat": [\n{"Vessel Name": ""}\n],',
+'"Variable Load": [\n{"Max Variable Load (kip)": ""}\n],'
 ]
 
 for ra in remove_array:
