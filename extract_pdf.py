@@ -186,7 +186,7 @@ for p0 in pdf.pages:
                                     continue
                                 else:
                                     break
-                            elif ww_2 == "Mud Products" and (cell[ii][j+1] == cell[ii][k] or cell[ii-1][j+1] == cell[ii-1][k]):
+                            elif ww_2 in ["Mud", "Mud Products"] and (cell[ii][j+1] == cell[ii][k] or cell[ii-1][j+1] == cell[ii-1][k]):
                                     continue
                             else:
                                 if ww_2 == "Mud Products": print("1:4")
@@ -320,7 +320,10 @@ for p0 in pdf.pages:
                             cell[i+1][jj] = -1
                         # Get the columns data in group
                         for iii in range(i + 2, ii): 
-                            if ww_2 == "Mud Products" and cell[iii][j] == cell[iii][k]: continue
+                            if ww_2 == "Mud Products" and cell[iii][j] == cell[iii][k]: 
+                                # for jj in range(j, k + 1):
+                                #     cell[iii][jj] = -1
+                                continue
                             header_cc = 0
                             sss = ""
                             if remove_special_characters(" ".join(word[cell[iii][j]].splitlines())) == "": 
@@ -353,6 +356,10 @@ for p0 in pdf.pages:
                         pre_cell = -2
                         ss += "{\n"
                         for iii in range(i + 1, ii): 
+                            if ww_2 == "Mud" and cell[iii][j] == cell[iii][k]: 
+                                for jj in range(j, k + 1):
+                                    cell[iii][jj] = -1
+                                continue
                             sss = ""
                             for jj in range(j, k + 1):
                                 if cell[iii][jj] != pre_cell:
@@ -372,8 +379,7 @@ for p0 in pdf.pages:
                         ss += "}"
 
                     elif ww_2 in ["Operation Summary", "Variable Load", "Planned Operation", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Safety Drills", "Well Status at 6:00 am", "Day Total"]:
-                        ww_2 += ':' + " ".join(word[cell[i+1][j]].splitlines())                      
-                        
+                        ww_2 += ':' + " ".join(word[cell[i+1][j]].splitlines())   
                         for iiii in range(i, i + 2):
                             cc = cell[iiii][j]
                             for jjjj in range(j, len(df.columns)):
@@ -382,8 +388,7 @@ for p0 in pdf.pages:
                                 else:
                                     break
                     elif ww_2 in ["Summary/Remarks"]:
-                        ww_2 += ':' + " ".join(word[cell[i+1][j]].splitlines())                      
-                        
+                        ww_2 += ':' + " ".join(word[cell[i+1][j]].splitlines()) 
                         for iiii in range(i, ii):
                             cc = cell[iiii][j]
                             for jjjj in range(j, len(df.columns)):
