@@ -72,7 +72,7 @@ pdf = pdfplumber.open(pdf_file)
 # Open output text file
 # filename += "_" + f"{dt_string}.txt"
 filename = "output.txt"
-my_file = open(f"{output_path}\{filename}", "w", encoding="utf8")
+my_file = open(f"{output_path}\\temp.txt", "w", encoding="utf8")
 write_into_file("{\n")
 
 # Main Working Flow
@@ -491,3 +491,16 @@ for p0 in pdf.pages:
 write_into_file("\n")
 write_into_file("}")
 my_file.close()
+
+output_file = open(f"{output_path}\{filename}", "w", encoding="utf8")
+input_file = open(f"{output_path}\\temp.txt", "r", encoding="utf8")
+ss = input_file.read()
+# print("#"*20)
+# print(ss)
+ss = ss.replace('"Personnel": [\n{"Company": "", "Qty": ""}\n],', '')
+# print("#"*20)
+# print(ss)
+output_file.write(ss)
+input_file.close()
+output_file.close()
+
