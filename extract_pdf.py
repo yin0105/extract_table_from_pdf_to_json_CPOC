@@ -455,7 +455,7 @@ for p0 in pdf.pages:
                     write_into_file(", \n")
                 # if ww_2.__contains__("ype Time"):
                 #     # Remove special characters
-                #     ww_2 = ww_2.replace('"', '')
+                #     ww_2 = ww_2.replace('"', 
                 if ss != "" and ss[0] == "{": 
                     #ww_2 = '"' + ww_2 + '": {\n'
                     ww_2 = '"' + ww_2 + '": [\n'
@@ -497,13 +497,22 @@ input_file = open(f"{output_path}\\temp.txt", "r", encoding="utf8")
 ss = input_file.read()
 # print("#"*20)
 # print(ss)
-ss = ss.replace('"Personnel": [\n{"Company": "", "Qty": ""}\n],', '')
-ss = ss.replace('"Penetration": [\n{"Bit Run": "", "Start (m)": "", "End (m)": "", "Interval (m)": "", "Time (hr)": "", "ROP (m/hr)": "", "Cum Depth (m)": "", "Cum Time (hr)": "", "Tot ROP (m/hr)": ""}\n],', '')
-ss = ss.replace('"Bit": [\n{"Bit and Core Head Inventory": "", "Bit Dull": "", "Nozzle (32nd\\")": "", "TFA (in²)": ""}\n],', '')
-ss = ss.replace('"Parameters": [\n{"WOB (kip)": "", "RPM (rpm)": "", "Flow (L/min)": "", "SPP (psi)": "", "On Btm (ft-lbf)": ""}\n], ', '')
-ss = ss.replace('"Drillstring Assembly": [\n{"BHA Run": "", "BHA": ""}\n],', '')
-ss = ss.replace('', '')
-ss = ss.replace('', '')
+remove_array = ['"Personnel": [\n{"Company": "", "Qty": ""}\n],', 
+'"Penetration": [\n{"Bit Run": "", "Start (m)": "", "End (m)": "", "Interval (m)": "", "Time (hr)": "", "ROP (m/hr)": "", "Cum Depth (m)": "", "Cum Time (hr)": "", "Tot ROP (m/hr)": ""}\n],', 
+'"Bit": [\n{"Bit and Core Head Inventory": "", "Bit Dull": "", "Nozzle (32nd\\")": "", "TFA (in²)": ""}\n],', 
+'"Parameters": [\n{"WOB (kip)": "", "RPM (rpm)": "", "Flow (L/min)": "", "SPP (psi)": "", "On Btm (ft-lbf)": ""}\n], ', 
+'"Drillstring Assembly": [\n{"BHA Run": "", "BHA": ""}\n],', 
+'"Day Total": "",',
+'"Cum to Date": "",', 
+'"Mud Total": "",', 
+'"Mud Cum to Date": "",', 
+'"Main Stock": [\n{"Supply Item": "", "Unit": "", "Receive": "", "Used": "", "Stock": ""}\n],', 
+'"Supply Boats": [\n{"Vessel Name": "", "Date arrival": "", "Depart": ""}\n],', 
+'"Weather Conditions": [\n{\n"Wave Height (m)": "", "Wave Period (sec)": "", "Wave Direction (°)": "", "Wind Speed (knots)": "", "Wind Direction (°)": "", "P Bar (mbar)": "", "Current Speed (knots)": "", "Current Direction (°)": ""}\n],', 
+]
+
+for ra in remove_array:
+    ss = ss.replace(ra, '')
 # print("#"*20)
 # print(ss)
 output_file.write(ss)
