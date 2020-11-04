@@ -367,7 +367,18 @@ for p0 in pdf.pages:
                                     ww = " ".join(word[cell[iii][jj]].splitlines()) 
                                     if len(word[cell[iii][jj]].splitlines()) > 0 :
                                         if remove_special_characters(word[cell[iii][jj]].splitlines()[0]) == "Summary/Remarks" : continue
-                                        sss += '"' + remove_special_characters(word[cell[iii][jj]].splitlines()[0]) + '": "'
+                                        tmp_key = remove_special_characters(word[cell[iii][jj]].splitlines()[0])
+                                        if ww_2 == "Mud":
+                                            if tmp_key == "YS (lbf/100ft²": tmp_key = "YS (lbf/100ft²)"
+                                            if tmp_key == ")PV (cp)": tmp_key = "PV (cp)"
+                                            if tmp_key == "CEC (me/hg": tmp_key = "CEC (me/hg)"
+                                            if tmp_key == "Filt. (ml/30 mi": tmp_key = "Filt. (ml/30 minF)"
+                                            if tmp_key == "nF)C (mm)": tmp_key = "C (mm)"
+                                            if tmp_key == "HPHT Filt. (ml/3": tmp_key = "HPHT Filt. (ml/30min)"
+                                            if tmp_key == "0H mPiHn)T FC (m": tmp_key = "HPHT FC (m)"
+                                            # if tmp_key == "": tmp_key = ""
+                                            # if tmp_key == "": tmp_key = ""
+                                        sss += '"' + tmp_key + '": "'
                                         if len(word[cell[iii][jj]].splitlines()) > 1 : 
                                             sss += remove_special_characters(word[cell[iii][jj]].splitlines()[1])
                                         sss += '"'
