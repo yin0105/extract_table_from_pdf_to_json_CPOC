@@ -124,26 +124,35 @@ for p0 in pdf.pages:
     
     vess_start = False
     for i in range(len(df.index)):
+        # my_file.write("line " + str(i) + " : ")
         count = 1
         cell_temp = []
         
         # Iterate through columns
         for j in  range(len(df.columns)):
             
-            ss = str(df.iloc[i, j])          
+            ss = str(df.iloc[i, j])
+            # my_file.write(str(j) + ":" + ss + "  ")          
             if ss != "None" :
-                if not (ss == "" and word[len(word) - 1] == "Time Log"):
-                    word.append(ss)
-                    count += 1
-                    if j == 15 and ss == "Vessel Name":
-                        vess_start = True
+                word.append(ss)
+                count += 1
+                if j == 15 and ss == "Vessel Name":
+                    vess_start = True
+                # if not (ss == "" and word[len(word) - 1] == "Time Log"):
+                #     word.append(ss)
+                #     count += 1
+                #     if j == 15 and ss == "Vessel Name":
+                #         vess_start = True
             else:
-                if j == 0 or (j == 20 and word[len(word) - 1] == "6.00") or (i == 10 and j == 33) or (j == 15 and vess_start) or (j == 33 and word[len(word) - 1] == "Summary/Remarks") or (j == 30 and word[len(word) - 1].find("Current Direction (°)") == 0):
+                # if word[len(word) - 1] == "Time Log": print("ok" + str(j))
+                # if j == 20 and word[len(word) - 1] == "Time Log" : print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+                if j == 0 or (j == 20 and word[len(word) - 1] == "6.00") or (i == 10 and j == 33) or (j == 15 and vess_start) or (j == 33 and word[len(word) - 1] == "Summary/Remarks") or (j == 20 and word[len(word) - 1] == "Time Log") or (j == 20 and word[len(word) - 1] == "Dur (hr)") or (j == 20 and word[len(word) - 1] == "Dur (hr)") or (j == 30 and word[len(word) - 1].find("Current Direction (°)") == 0)or (j == 20 and word[len(word) - 1].find("Cum Dur") == 0):
                     word.append("")
                     count += 1
 
             cell_temp.append( len(word) - 1)
         cell.append(cell_temp)
+        # my_file.write("\n")
 
     # Main Working Flow
     # Iterate through rows
@@ -164,9 +173,12 @@ for p0 in pdf.pages:
                 cell[i][j] = -1
                 continue
             # Whether data is group
+            print("ww_2 = " + ww_2 + " i = " + str(i) + " j = " + str(j) + " k = " + str(k))
             if i < len(df.index) - 2 and k > j: 
-                if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[i+1][k] != cell[i+1][k+1])) or ww_2 in ["Time Log"]) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions", "Summary/Remarks", "Standby Boat", "Variable Load"]) :
+                if ww_2 == 'Time Log': print("1")
+                if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[i+1][k] != cell[i+1][k+1])) or ww_2 in ["Time Log", "Summary/Remarks"]) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions", "Summary/Remarks", "Standby Boat", "Variable Load"]) :
                     # Get the number of rows in a group
+                    if ww_2 == 'Time Log': print("2")
                     for ii in range(i+2, len(df.index) - 1): 
                         if ww_2 == "Mud" and word[cell[ii][j]] == "Mud Products": break
                         if ww_2 == "Supply Boats" and word[cell[ii][j]] == "Weather Conditions": break
@@ -182,8 +194,11 @@ for p0 in pdf.pages:
                         if ww_2 == "Standby Boat" and word[cell[ii][j]] == "Variable Load": break
                         if ww_2 == "Variable Load" and word[cell[ii][j]] == "Weather Conditions": break
                         if not ((j == 0 or (j > 0 and cell[ii][j-1] != cell[ii][j]) or (j > 0 and cell[ii][j-1] == cell[ii][j] and cell[ii][j] == cell[ii][k])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[ii][k] != cell[ii][k+1] or (cell[ii][k] == cell[ii][k+1] and ww_2 in ["Time Log", "Survey Data", "Summary/Remarks"])))) and (cell[ii][j] != cell[ii][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Planned Operation", "Accidents", "Cum to Date", "Mud Total", "Mud Cum to Date", "Day Total", "Safety Drills", "Well Status at 6:00 am", "Personnel", "Supply Boats", "Standby Boat", "Weather Conditions", "Summary/Remarks"])) and (ww_2 == "Mud Products" and cell[ii][j]!=cell[ii][k]) : break
+                        if ww_2 == "Time Log": 
+                                print("3")
                         if not(ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Planned Operation", "Accidents", "Mud Total", "Mud Cum to Date", "Day Total", "Cum to Date", "Safety Drills", "Well Status at 6:00 am", "Personnel", "Supply Boats", "Standby Boat", "Weather Conditions"]):
-                            if ww_2 == "Summary/Remarks": 
+                            if ww_2 == "Time Log": 
+                                print("4")
                                 if cell[ii][j+1] == cell[ii][k]:
                                     continue
                                 else:
@@ -200,6 +215,8 @@ for p0 in pdf.pages:
                         if ii < i + 2: ii = i + 2                        
                         if ii == len(df.index) - 2 : ii += 1
                     
+                    if ww_2 == 'Time Log': print("ii = " + str(ii))
+                    
                     if ww_2 == "Time Log":
                         pre_cell = -2
                         header = []
@@ -210,6 +227,7 @@ for p0 in pdf.pages:
                                 pre_cell = cell[i+1][jj]
                         # Get the columns data in group
                         for iii in range(i + 2, ii): 
+                            print("iii = " + str(iii))
                             group_column_num = 0
                             tmp_list = []
                             pre_cell = -2
@@ -221,11 +239,18 @@ for p0 in pdf.pages:
                                 cell[iii][jj] = -1
 
                             # Split cell data to multiple rows
-                            
+                            print(tmp_list)
+                            if len(tmp_list) > 0 and tmp_list[0] == "" and tmp_list[2] != "":
+                                print("##" + "".join(tmp_list) + "##")
+                                # write_into_file('"time_log_comment": "' + remove_special_characters(tmp_list[2]) + '"')
+                                if ss != "": ss += ", \n"
+                                ss += '{"Start Time": "", "End Time": "", "Comment": "' + remove_special_characters(" ".join(tmp_list[2].splitlines())) + '", "Code": "", "Dur (hr)": "" } '
+                                # ss = '"time_log_comment": "' + remove_special_characters(tmp_list[2]) + '"'
                             while len(tmp_list) > 0 and len(tmp_list[0].splitlines()) > 0:
                                 f_ok = False
                                 # Get data of the first line of the first column
                                 comp_str = tmp_list[0].splitlines()[-1].strip() 
+                                print("comp_str = " + comp_str)
                                 
                                 # Compare data of word array with comp_str and Set data
                                 for t_a in t_word[find_page_num - 1]:
@@ -279,9 +304,9 @@ for p0 in pdf.pages:
                                                         tmp_list = tt[:]
                                                     f_ok = True
 
-                                                if ss != "": ss += "\n"
+                                                if ss != "" and ss != "\n": ss += "\n"
                                                 if len(tmp_list) == 0: 
-                                                    write_into_file("\n")
+                                                    # write_into_file("\n")
                                                     write_into_file(ss)
                                                     break
                                 if not f_ok: find_page_num += 1
@@ -378,6 +403,7 @@ for p0 in pdf.pages:
                                     break
                     elif ww_2 in ["Summary/Remarks"]:
                         ww_2 += ':' + " ".join(word[cell[i+1][j]].splitlines()) 
+                        print(ww_2)
                         for iiii in range(i, ii):
                             cc = cell[iiii][j]
                             for jjjj in range(j, len(df.columns)):
@@ -483,7 +509,7 @@ remove_array = ['"Personnel": [\n{"Company": "", "Qty": ""}\n],',
 ]
 
 for ra in remove_array:
-    ss = ss.replace(ra, '')
+    ss = ss.replace(ra + " \n", '')
 
 first_start_pos = 0
 first_end_pos = 0
@@ -500,6 +526,28 @@ while True:
         first_start_pos = cur_pos
         first_end_pos = end_pos
     start_pos = first_end_pos + 1
+
+str_1 = '{"Start Time": "", "End Time": "", "Comment": "'
+if ss.find(str_1) > -1:    
+    start_pos = ss.find(str_1)
+    end_pos = ss.find('", "Code":', start_pos)
+    add_comment = ss[start_pos + len(str_1): end_pos]
+    end_pos = ss.find("}", start_pos)    
+    # print(ss[start_pos-3: end_pos + 1])
+    ss = ss[:start_pos-4] + ss[end_pos + 1:]
+    print("add_comment = " + add_comment)
+    
+    str_2 = '"Comment": "'
+    start_pos = ss[:start_pos].rfind(str_2)
+    print("start_pos = " + str(start_pos))
+    end_pos = ss.find('" , "Code":', start_pos)
+    print("end_pos = " + str(end_pos))
+    ori_comment = ss[start_pos + len(str_2): end_pos]
+    print("ori_comment = " + ori_comment)
+    print("#"*50)
+    ss= ss[:start_pos + len(str_2)] + ori_comment + " " + add_comment + ss[end_pos:]
+    # print(ss)
+
     
 start_pos = ss.find("{\"Cum Dur\":")
 if start_pos > -1:
