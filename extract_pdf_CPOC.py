@@ -27,6 +27,12 @@ def remove_special_characters(content):
     # return ''.join(e for e in content if e.isalnum() or e == ' ')
     return content.replace('"', '\\"').strip()
 
+def remove_space(ss):
+    s = list(ss)
+    s = [i.strip() for i in s]
+    return "".join(s)
+    
+
 # datetime object containing current date and time
 now = datetime.now()
 dt_string = now.strftime("%Y-%m-%d_%H-%M-%S")
@@ -246,11 +252,13 @@ for p0 in pdf.pages:
                                 if ss != "": ss += ", \n"
                                 ss += '{"Start Time": "", "End Time": "", "Comment": "' + remove_special_characters(" ".join(tmp_list[2].splitlines())) + '", "Code": "", "Dur (hr)": "" } '
                                 # ss = '"time_log_comment": "' + remove_special_characters(tmp_list[2]) + '"'
+                            pre_comp_str = ""
                             while len(tmp_list) > 0 and len(tmp_list[0].splitlines()) > 0:
                                 f_ok = False
                                 # Get data of the first line of the first column
                                 comp_str = tmp_list[0].splitlines()[-1].strip() 
-                                print("comp_str = " + comp_str)
+                                if pre_comp_str != comp_str: print("comp_str = " + comp_str)
+                                pre_comp_str = comp_str
                                 
                                 # Compare data of word array with comp_str and Set data
                                 for t_a in t_word[find_page_num - 1]:
@@ -268,6 +276,7 @@ for p0 in pdf.pages:
                                             # If there is comp_str in data of word array, check other data
                                             if f == True:                                                
                                                 for t_c in t_a:
+                                                    # print(tmp_list)
                                                     if len(tmp_list) == 0: break
                                                     if len(tmp_list[0].splitlines()) ==0: break
                                                     if t_c.find(tmp_list[0].splitlines()[-1].strip()) == -1: continue
@@ -282,12 +291,18 @@ for p0 in pdf.pages:
                                                         tt[c] =  tmp_list[c]                                                 
                                             
                                                         for c_len in range(len(tt[c].splitlines())):
-                                                            
+                                                            # print("4")
                                                             for t_d in t_a:
-                                                                if t_d.find(tt[c].splitlines()[len(tt[c].splitlines())- c_len -1].strip()) > -1:
+                                                                print("t_d = " + t_d)
+                                                                print("t_c = " + tt[c].splitlines()[len(tt[c].splitlines())- c_len -1].strip())
+                                                                # if t_d.find(tt[c].splitlines()[len(tt[c].splitlines())- c_len -1].strip()) > -1:
+                                        
+                                                                if remove_space(str(t_d)).find(remove_space(tt[c].splitlines()[len(tt[c].splitlines())- c_len -1].strip())) > -1:
+                                                                    print("5")
                                                                     cc = "  ".join(tt[c].splitlines()[len(tt[c].splitlines())- c_len -1:])
                                                                     sss = '"' + header[c] + '": "' + remove_special_characters("  ".join(tt[c].splitlines())) + '" '
                                                                     tt[c] = ""
+                                                                    print("tt[" + str(c) + "] = " + str(tt[c]))
                                                                     break
                                                             else:
                                                                 continue
@@ -297,6 +312,7 @@ for p0 in pdf.pages:
                                                         if ssss != "": ssss += ", "
                                                         ssss += sss
                                                     else:
+                                                        print("end")
                                                         if ss == "":
                                                             ss = '{' + ssss + '}'
                                                         else:    
@@ -304,7 +320,10 @@ for p0 in pdf.pages:
                                                         tmp_list = tt[:]
                                                     f_ok = True
 
+
                                                 if ss != "" and ss != "\n": ss += "\n"
+                                                # print("6")
+                                                # print(tmp_list)
                                                 if len(tmp_list) == 0: 
                                                     # write_into_file("\n")
                                                     write_into_file(ss)
