@@ -68,49 +68,49 @@ for a in df:
 
 # 19/10/2020 - To add missing attributes
 
-field_name = t_word[0][00][0].split(' ')[0]
-branch_name = ""
-if len(t_word[0][00][0].split(' ')) > 2 : branch_name = t_word[0][00][0].split(' ')[1] + ' ' + t_word[0][00][0].split(' ')[2]
-start_depth = ""
-if len(t_word[0][00][0].split(' ')) > 3 : start_depth = t_word[0][00][0].split(' ')[3]
-rig_name = "DEEP DRILLER 4"
-well_name = t_word[0][3][0].split(rig_name)[0].strip()
-if t_word[0][3][0][-14:] == rig_name:
-    phase = t_word[0][3][1]
-else:
-    phase = t_word[0][3][0].split(rig_name)[1].replace('"', '\\"')
-company_representatives = f"{t_word[0][1][1]}, {t_word[0][2][1]}"
-# report_no = t_word[0][0][2].split('RPT #:')[1].strip()
-report_no = ''.join(t_word[0][0]).split('RPT #:')[1].strip()
-well_name = t_word[0][3][0].split(rig_name)[0].strip()
-next_ = " ".join(t_word[0][2])
-next_ = next_[next_.find("Next :") + 6:next_.find("Midnight Depth")]
-next_ = next_.strip()
-midnight = " ".join(t_word[0][3]).split(" ")
-midnight_1 = ""
-midnight_2 = ""
+# field_name = t_word[0][00][0].split(' ')[0]
+# branch_name = ""
+# if len(t_word[0][00][0].split(' ')) > 2 : branch_name = t_word[0][00][0].split(' ')[1] + ' ' + t_word[0][00][0].split(' ')[2]
+# start_depth = ""
+# if len(t_word[0][00][0].split(' ')) > 3 : start_depth = t_word[0][00][0].split(' ')[3]
+# rig_name = "DEEP DRILLER 4"
+# well_name = t_word[0][3][0].split(rig_name)[0].strip()
+# if t_word[0][3][0][-14:] == rig_name:
+#     phase = t_word[0][3][1]
+# else:
+#     phase = t_word[0][3][0].split(rig_name)[1].replace('"', '\\"')
+# company_representatives = f"{t_word[0][1][1]}, {t_word[0][2][1]}"
+# # report_no = t_word[0][0][2].split('RPT #:')[1].strip()
+# report_no = ''.join(t_word[0][0]).split('RPT #:')[1].strip()
+# well_name = t_word[0][3][0].split(rig_name)[0].strip()
+# next_ = " ".join(t_word[0][2])
+# next_ = next_[next_.find("Next :") + 6:next_.find("Midnight Depth")]
+# next_ = next_.strip()
+# midnight = " ".join(t_word[0][3]).split(" ")
+# midnight_1 = ""
+# midnight_2 = ""
 
-if (type(midnight[-1]) == int or float) and (type(midnight[-2]) == int or float):
-    midnight_1 = midnight[-2]
-    midnight_2 = midnight[-1]
+# if (type(midnight[-1]) == int or float) and (type(midnight[-2]) == int or float):
+#     midnight_1 = midnight[-2]
+#     midnight_2 = midnight[-1]
 
-# ['Melati Original Hole 103.74', 'Company Man', 'OD (in) Depth (mMD/mTVD) RPT #: 1']
-# ['Melati Original Hole 190.00', 'Company Man', 'OD (in)', 'Depth (mMD/mTVD) RPT #:', '5']
+# # ['Melati Original Hole 103.74', 'Company Man', 'OD (in) Depth (mMD/mTVD) RPT #: 1']
+# # ['Melati Original Hole 190.00', 'Company Man', 'OD (in)', 'Depth (mMD/mTVD) RPT #:', '5']
 
-# Make json structure for the report header
-report_header_info = '"ReportHeader":{' \
-    + f'"Field Name":"{field_name}",' \
-    + f'"Branch Name":"{branch_name}",' \
-    + f'"Start Depth (m)":"{start_depth}",' \
-    + f'"Well Name":"{well_name}",' \
-    + f'"Rig":"{rig_name}",' \
-    + f'"Phase":"{phase}",' \
-    + f'"Company Representatives":"{company_representatives}",' \
-    + f'"Report No":"{report_no}",' \
-    + f'"Next":"{next_}",' \
-    + f'"Midnight Depth mMD":"{midnight_1}",' \
-    + f'"Midnight Depth mTVD":"{midnight_2}"' \
-    + '}, \n'
+# # Make json structure for the report header
+# report_header_info = '"ReportHeader":{' \
+#     + f'"Field Name":"{field_name}",' \
+#     + f'"Branch Name":"{branch_name}",' \
+#     + f'"Start Depth (m)":"{start_depth}",' \
+#     + f'"Well Name":"{well_name}",' \
+#     + f'"Rig":"{rig_name}",' \
+#     + f'"Phase":"{phase}",' \
+#     + f'"Company Representatives":"{company_representatives}",' \
+#     + f'"Report No":"{report_no}",' \
+#     + f'"Next":"{next_}",' \
+#     + f'"Midnight Depth mMD":"{midnight_1}",' \
+#     + f'"Midnight Depth mTVD":"{midnight_2}"' \
+#     + '}, \n'
 
 # Parse a pdf file with pdfplumber
 pdf = pdfplumber.open(pdf_file) 
@@ -196,7 +196,6 @@ for p0 in pdf.pages:
                 cell[i][j] = -1
                 continue
             # Whether data is group
-            # print("ww_2 = " + ww_2 + " i = " + str(i) + " j = " + str(j) + " k = " + str(k))
             if i < len(df.index) - 2 and k > j: 
                 if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[i+1][k] != cell[i+1][k+1])) or ww_2 in ["Time Log", "Summary/Remarks"]) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions", "Summary/Remarks", "Standby Boat", "Variable Load"]) :
                     # Get the number of rows in a group
@@ -373,7 +372,7 @@ for p0 in pdf.pages:
                                 
                             sss = '{' + sss + '}'
                             if ss != "": ss += ", "
-                            ss += sss                    
+                            ss += sss  
 
                     elif ww_2 in ["Mud", "Daily Operations", "Daily Cost/Time Summary", "Mud/Fluid Checks", "Weather Conditions", "BHA Information", "Drilling Parameters", "Leak Off and Formation Integrity Tests", "Casing Pressure Tests", "BOP Pressure Tests"]:
                         pre_cell = -2
@@ -382,19 +381,12 @@ for p0 in pdf.pages:
                         for iii in range(i + 1, ii): 
                             sss = ""
                             if ww_2 == "Mud" and cell[iii][j] == cell[iii][k]:
-                                print("####################")
-                                print(word[cell[iii][j]])
-                                print("####################")
                                 if not mud_type_appear : 
                                     mud_type_appear = True
-                                    print(str(cell[iii][j]) + " :: " + str(pre_cell))
                                     if cell[iii][j] != pre_cell:
-                                        print("1")
                                         if sss != "" and word[cell[iii][j]] != "": sss += ", "  
                                         ww = " ".join(word[cell[iii][j]].splitlines()) 
-                                        print("2")
                                         if len(word[cell[iii][j]].splitlines()) > 0 :
-                                            print("3")
                                             if remove_special_characters(word[cell[iii][j]].splitlines()[0]) == "Summary/Remarks" : continue
                                             tmp_key = remove_special_characters(word[cell[iii][j]].splitlines()[0])
                                             if tmp_key[-1] == ":": tmp_key = tmp_key[:-1]
@@ -403,7 +395,6 @@ for p0 in pdf.pages:
                                                 sss += remove_special_characters(word[cell[iii][j]].splitlines()[1])
                                             sss += '"'
                                         pre_cell = cell[iii][j]
-                                        print("sss = " + sss)
                                         if sss != "":
                                             if ss != "{\n": ss += ", "
                                             ss += sss
@@ -514,11 +505,11 @@ for p0 in pdf.pages:
 
                 
 
-                if ww_2.__contains__('Penetration') and not already_defined_report_header:
-                    already_defined_report_header = True
-                    write_into_file(report_header_info + ww_2)
-                else:
-                    write_into_file(ww_2)
+                # if ww_2.__contains__('Penetration') and not already_defined_report_header:
+                #     already_defined_report_header = True
+                #     write_into_file(report_header_info + ww_2)
+                # else:
+                write_into_file(ww_2)
                 write_started = True
 
             
@@ -532,7 +523,7 @@ write_into_file("\n")
 write_into_file("}")
 my_file.close()
 
-print(f"{output_path}\{filename}")
+print(output_path + "\\" + filename)
 output_file = open(f"{output_path}\{filename}", "w", encoding="utf8")
 input_file = open(f"{output_path}\\temp.txt", "r", encoding="utf8")
 ss = input_file.read()
@@ -554,7 +545,13 @@ remove_array = ['"Personnel": [\n{"Company": "", "Qty": ""}\n],',
 ]
 
 for ra in remove_array:
-    ss = ss.replace(ra + " \n", '')
+    p_1 = ra.find(":")
+    key = ra[:p_1 + 3]
+    p_2 = ss.find(key)
+    if ss.find(key, p_2 + 1) > -1:
+        ss = ss[:p_2] + ss[p_2:].replace(ra + " \n", '')
+
+    # ss = ss.replace(ra + " \n", '')
 
 first_start_pos = 0
 first_end_pos = 0
@@ -618,5 +615,5 @@ while True:
 output_file.write(ss)
 input_file.close()
 output_file.close()
-os.remove("temp.txt")
+os.remove(output_path + "\\" + "temp.txt")
 
