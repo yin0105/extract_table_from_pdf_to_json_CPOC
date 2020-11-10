@@ -31,6 +31,11 @@ def remove_space(ss):
     s = list(ss)
     s = [i.strip() for i in s]
     return "".join(s)
+
+def is_num(ss):
+    for s in str(ss):
+        if not s.isnumeric() and s != ".": return False
+    return True
     
 
 # datetime object containing current date and time
@@ -67,50 +72,49 @@ for a in df:
     t_word.append(t_word_page)
 
 # 19/10/2020 - To add missing attributes
+field_name = t_word[0][00][0].split(' ')[0]
+branch_name = ""
+if len(t_word[0][00][0].split(' ')) > 2 : branch_name = t_word[0][00][0].split(' ')[1] + ' ' + t_word[0][00][0].split(' ')[2]
+start_depth = ""
+if len(t_word[0][00][0].split(' ')) > 3 : start_depth = t_word[0][00][0].split(' ')[3]
+rig_name = "DEEP DRILLER 4"
+well_name = t_word[0][3][0].split(rig_name)[0].strip()
+if t_word[0][3][0][-14:] == rig_name:
+    phase = t_word[0][3][1]
+else:
+    phase = t_word[0][3][0].split(rig_name)[1].replace('"', '\\"')
+next_ = " ".join(t_word[0][2])
+company_representatives = f"{t_word[0][1][1]}, {next_[next_.find('Phase')+6:next_.find(' Next')]}"
+# report_no = t_word[0][0][2].split('RPT #:')[1].strip()
+report_no = ''.join(t_word[0][0]).split('RPT #:')[1].strip()
+well_name = t_word[0][3][0].split(rig_name)[0].strip()
 
-# field_name = t_word[0][00][0].split(' ')[0]
-# branch_name = ""
-# if len(t_word[0][00][0].split(' ')) > 2 : branch_name = t_word[0][00][0].split(' ')[1] + ' ' + t_word[0][00][0].split(' ')[2]
-# start_depth = ""
-# if len(t_word[0][00][0].split(' ')) > 3 : start_depth = t_word[0][00][0].split(' ')[3]
-# rig_name = "DEEP DRILLER 4"
-# well_name = t_word[0][3][0].split(rig_name)[0].strip()
-# if t_word[0][3][0][-14:] == rig_name:
-#     phase = t_word[0][3][1]
-# else:
-#     phase = t_word[0][3][0].split(rig_name)[1].replace('"', '\\"')
-# company_representatives = f"{t_word[0][1][1]}, {t_word[0][2][1]}"
-# # report_no = t_word[0][0][2].split('RPT #:')[1].strip()
-# report_no = ''.join(t_word[0][0]).split('RPT #:')[1].strip()
-# well_name = t_word[0][3][0].split(rig_name)[0].strip()
-# next_ = " ".join(t_word[0][2])
-# next_ = next_[next_.find("Next :") + 6:next_.find("Midnight Depth")]
-# next_ = next_.strip()
-# midnight = " ".join(t_word[0][3]).split(" ")
-# midnight_1 = ""
-# midnight_2 = ""
+next_ = next_[next_.find("Next :") + 6:next_.find("Midnight Depth")]
+next_ = next_.strip()
+midnight = " ".join(t_word[0][3]).split(" ")
+midnight_1 = ""
+midnight_2 = ""
+if is_num(midnight[-1]) and is_num(midnight[-2]):
+    midnight_1 = midnight[-2]
+    midnight_2 = midnight[-1]
 
-# if (type(midnight[-1]) == int or float) and (type(midnight[-2]) == int or float):
-#     midnight_1 = midnight[-2]
-#     midnight_2 = midnight[-1]
+# ['Melati Original Hole 103.74', 'Company Man', 'OD (in) Depth (mMD/mTVD) RPT #: 1']
+# ['Melati Original Hole 190.00', 'Company Man', 'OD (in)', 'Depth (mMD/mTVD) RPT #:', '5']
 
-# # ['Melati Original Hole 103.74', 'Company Man', 'OD (in) Depth (mMD/mTVD) RPT #: 1']
-# # ['Melati Original Hole 190.00', 'Company Man', 'OD (in)', 'Depth (mMD/mTVD) RPT #:', '5']
-
-# # Make json structure for the report header
-# report_header_info = '"ReportHeader":{' \
-#     + f'"Field Name":"{field_name}",' \
-#     + f'"Branch Name":"{branch_name}",' \
-#     + f'"Start Depth (m)":"{start_depth}",' \
-#     + f'"Well Name":"{well_name}",' \
-#     + f'"Rig":"{rig_name}",' \
-#     + f'"Phase":"{phase}",' \
-#     + f'"Company Representatives":"{company_representatives}",' \
-#     + f'"Report No":"{report_no}",' \
-#     + f'"Next":"{next_}",' \
-#     + f'"Midnight Depth mMD":"{midnight_1}",' \
-#     + f'"Midnight Depth mTVD":"{midnight_2}"' \
-#     + '}, \n'
+# Make json structure for the report header
+report_header_info = '"ReportHeader":{' \
+    + f'"Field Name":"{field_name}",' \
+    + f'"Branch Name":"{branch_name}",' \
+    + f'"Start Depth (m)":"{start_depth}",' \
+    + f'"Well Name":"{well_name}",' \
+    + f'"Rig":"{rig_name}",' \
+    + f'"Phase":"{phase}",' \
+    + f'"Company Representatives":"{company_representatives}",' \
+    + f'"Report No":"{report_no}",' \
+    + f'"Next":"{next_}",' \
+    + f'"Midnight Depth mMD":"{midnight_1}",' \
+    + f'"Midnight Depth mTVD":"{midnight_2}"' \
+    + '}, \n'
 
 # Parse a pdf file with pdfplumber
 pdf = pdfplumber.open(pdf_file) 
@@ -160,16 +164,13 @@ for p0 in pdf.pages:
                     vess_start = True
                 if j == 20 and ss == "Survey Data":
                     survey_data_start = True
+                if j == 20 and word[len(word) - 2] == "Time Log":
+                    survey_data_start = True
                 if ss == "Operation Summary": survey_data_start = False
-                # if not (ss == "" and word[len(word) - 1] == "Time Log"):
-                #     word.append(ss)
-                #     count += 1
-                #     if j == 15 and ss == "Vessel Name":
-                #         vess_start = True
             else:
-                # if word[len(word) - 1] == "Time Log": print("ok" + str(j))
-                # if j == 20 and word[len(word) - 1] == "Time Log" : print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-                if j == 0 or (j == 20 and word[len(word) - 1] == "6.00") or (i == 10 and j == 33) or (j == 15 and vess_start) or (j == 20 and survey_data_start) or (j == 33 and word[len(word) - 1] == "Summary/Remarks") or (j == 20 and word[len(word) - 1] == "Time Log") or (j == 20 and word[len(word) - 1] == "Dur (hr)") or (j == 20 and word[len(word) - 1] == "Dur (hr)") or (j == 30 and word[len(word) - 1].find("Current Direction (°)") == 0)or (j == 20 and word[len(word) - 1].find("Cum Dur") == 0):
+                if j == 20 and word[len(word) - 1] == "Time Log":
+                    survey_data_start = True
+                if j == 0 or (j == 20 and word[len(word) - 1] == "6.00") or (j == 15 and vess_start) or (j == 20 and survey_data_start) or (j == 33 and word[len(word) - 1] == "Summary/Remarks") or (j == 20 and word[len(word) - 1] == "Time Log") or (j == 20 and word[len(word) - 1] == "Dur (hr)") or (j == 20 and word[len(word) - 1] == "Dur (hr)") or (j == 30 and word[len(word) - 1].find("Current Direction (°)") == 0)or (j == 20 and word[len(word) - 1].find("Cum Dur") == 0):
                     word.append("")
                     count += 1
 
@@ -185,6 +186,7 @@ for p0 in pdf.pages:
             ss = ""
             if cell[i][j] == -1: continue
             # Get cell number of data
+            
             for k in range(j + 1, len(df.columns)): 
                 if cell[i][k] != cell[i][j]: break
             else:
@@ -196,8 +198,8 @@ for p0 in pdf.pages:
                 cell[i][j] = -1
                 continue
             # Whether data is group
-            if i < len(df.index) - 2 and k > j: 
-                if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[i+1][k] != cell[i+1][k+1])) or ww_2 in ["Time Log", "Summary/Remarks"]) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions", "Summary/Remarks", "Standby Boat", "Variable Load"]) :
+            if i < len(df.index) - 2 and k > j:
+                if (j == 0 or (j > 0 and cell[i+1][j-1] != cell[i+1][j])) and (k == len(df.columns) - 1 or (k < len(df.columns) - 1 and (cell[i+1][k] != cell[i+1][k+1])) or ww_2 in ["Time Log", "Summary/Remarks", "Main Stock"]) and (cell[i+1][j] != cell[i+1][k] or ww_2 in ["Mud", "Time Log", "Survey Data", "Operation Summary", "Variable Load", "Well Status at 6:00 am", "Planned Operation", "Safety Drills", "Accidents", "Mud Total", "Mud Cum to Date", "Cum to Date", "Day Total", "Personnel", "Weather Conditions", "Summary/Remarks", "Standby Boat", "Variable Load", "Main Stock"]) :
                     # Get the number of rows in a group
                     for ii in range(i+2, len(df.index) - 1): 
                         if ww_2 == "Mud" and word[cell[ii][j]] == "Mud Products": break
@@ -231,6 +233,7 @@ for p0 in pdf.pages:
                     else:
                         if ii < i + 2: ii = i + 2                        
                         if ii == len(df.index) - 2 : ii += 1
+
                     
                     if ww_2 == "Time Log":
                         pre_cell = -2
@@ -494,7 +497,7 @@ for p0 in pdf.pages:
                     ww_2 = '"' + ww_2 + '": [\n'
                 elif ww_2.find(":") > -1:
                     if ww_2.find("Well Status at 6:00 am") > -1 :
-                        ww_2 = '"Well Status at 6:00 am": "' + ww_2[24:] + '"'
+                        ww_2 = '"Well Status at 6:00 am": "' + ww_2[23:] + '"'
                     else:    
                         ww_2 = '"' + remove_special_characters(ww_2.split(":", 1)[0]) + '": "' + ww_2.split(":", 1)[1] + '"'
                 elif len(ww_2.splitlines()) > 1:
@@ -505,11 +508,11 @@ for p0 in pdf.pages:
 
                 
 
-                # if ww_2.__contains__('Penetration') and not already_defined_report_header:
-                #     already_defined_report_header = True
-                #     write_into_file(report_header_info + ww_2)
-                # else:
-                write_into_file(ww_2)
+                if ww_2.__contains__('Penetration') and not already_defined_report_header:
+                    already_defined_report_header = True
+                    write_into_file(report_header_info + ww_2)
+                else:
+                    write_into_file(ww_2)
                 write_started = True
 
             
@@ -524,14 +527,14 @@ write_into_file("}")
 my_file.close()
 
 print(output_path + "\\" + filename)
-output_file = open(f"{output_path}\{filename}", "w", encoding="utf8")
-input_file = open(f"{output_path}\\temp.txt", "r", encoding="utf8")
+output_file = open(output_path + "\\" + filename, "w", encoding="utf8")
+input_file = open(output_path + "\\" + "temp.txt", "r", encoding="utf8")
 ss = input_file.read()
 
 remove_array = ['"Personnel": [\n{"Company": "", "Qty": ""}\n],', 
 '"Penetration": [\n{"Bit Run": "", "Start (m)": "", "End (m)": "", "Interval (m)": "", "Time (hr)": "", "ROP (m/hr)": "", "Cum Depth (m)": "", "Cum Time (hr)": "", "Tot ROP (m/hr)": ""}\n],', 
 '"Bit": [\n{"Bit and Core Head Inventory": "", "Bit Dull": "", "Nozzle (32nd\\")": "", "TFA (in²)": ""}\n],', 
-'"Parameters": [\n{"WOB (kip)": "", "RPM (rpm)": "", "Flow (L/min)": "", "SPP (psi)": "", "On Btm (ft-lbf)": ""}\n], ', 
+'"Parameters": [\n{"WOB (kip)": "", "RPM (rpm)": "", "Flow (L/min)": "", "SPP (psi)": "", "On Btm (ft-lbf)": ""}\n],', 
 '"Drillstring Assembly": [\n{"BHA Run": "", "BHA": ""}\n],', 
 '"Day Total": "",',
 '"Cum to Date": "",', 
@@ -549,9 +552,7 @@ for ra in remove_array:
     key = ra[:p_1 + 3]
     p_2 = ss.find(key)
     if ss.find(key, p_2 + 1) > -1:
-        ss = ss[:p_2] + ss[p_2:].replace(ra + " \n", '')
-
-    # ss = ss.replace(ra + " \n", '')
+        ss = ss[:ss.find(key, p_2 + 1)] + ss[ss.find(key, p_2 + 1):].replace(ra + " \n", '')
 
 first_start_pos = 0
 first_end_pos = 0
@@ -611,6 +612,7 @@ while True:
         first_start_pos = cur_pos
         first_end_pos = end_pos
     start_pos = first_end_pos + 1
+ss = ss.replace(', \n"Current Direction (°)": ""', '')
 
 output_file.write(ss)
 input_file.close()
